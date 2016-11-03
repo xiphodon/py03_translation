@@ -27,13 +27,27 @@ data["ue"] = "UTF-8"
 data["action"] = "FY_BY_CLICKBUTTON"
 data["typoResult"] = "true"
 
+#  添加头部请求，其中User-Agent等字段的加入可以用来伪装成浏览器访问:
+#  User-Agent:Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36
+
+#  head = {}
+#  head["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36"
+
 # 3,把表单数据加密成标准格式，并加密为utf-8编码
 data = urllib.parse.urlencode(data).encode("utf-8")
 
-# 4,持data数据访问url，拿到返回的二进制数据
-response = urllib.request.urlopen(url,data)
+# 4,把url和data属性封装成Request
+request = urllib.request.Request(url,data)
+#  若前面实现head字典，则执行
+#  request = urllib.request.Request(url,data,head)
 
-# 5,读取二进制数据并解密为utf-8编码
+#  若先生成Request请求，要加入head则需执行
+request.add_header("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36")
+
+# 5,持data数据访问url，拿到返回的二进制数据
+response = urllib.request.urlopen(request)
+
+# 6,读取二进制数据并解密为utf-8编码
 html = response.read().decode("utf-8")
 
 #  print(html) 返回 json数据
@@ -42,23 +56,23 @@ html = response.read().decode("utf-8")
 #"smartResult":{"type":1,"entries":["","n. 表示问候， 惊奇或唤起注意时的用语","int. 喂；哈罗","n. (Hello)人名；(法)埃洛"]}}
 
 
-# 6,json.loads(html) 返回 字典
+# 7,json.loads(html) 返回 字典
 mydict = json.loads(html)
 
 #    {'smartResult': {'type': 1, 'entries': ['', 'n. 表示问候， 惊奇或唤起注意时的用语', 'int. 喂；哈罗', 'n. (Hello)人名；(法)埃洛']},
 #    'type': 'EN2ZH_CN', 'errorCode': 0, 'elapsedTime': 0, 'translateResult': [[{'src': 'hello', 'tgt': '你好'}]]}
 
-# 7,取到列表
+# 8,取到列表
 mylist = mydict["translateResult"]
 
 #  [[{'src': 'hello', 'tgt': '你好'}]]
 
-# 8,取到列表中字典
+# 9,取到列表中字典
 include_dict = mylist[0][0]
 
 #  {'src': 'hello', 'tgt': '你好'}
 
-# 9,取到数据并显示
+# 10,取到数据并显示
 src = include_dict["src"]
 tgt = include_dict["tgt"]
 print("%s 的翻译结果为：%s" % (src , tgt))
